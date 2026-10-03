@@ -1,0 +1,204 @@
+<%- include('partials/head') %>
+<div class="app-shell">
+  <%- include('partials/sidebar') %>
+  <div class="app-body">
+    <%- include('partials/topbar') %>
+    <main id="main" class="workspace">
+      <%- include('partials/flash') %>
+      <div class="breadcrumbs">
+        <a href="/app">Workspace</a><% for (const item of breadcrumbs) { %><span>/</span
+        ><a href="/app?folder=<%= item.id %>"><%= item.name %></a
+        ><% } %><% if (!currentFolder) { %><span>/</span
+        ><span><%= title %></span><% } %>
+      </div>
+      <div class="page-heading">
+        <div>
+          <h1><%= title %><span class="heading-dot">.</span></h1>
+          <p><%= q ? `Results for “${q}”` : currentFolder ? 'A little order for the things that matter.' : view === 'all' ? 'Everything you need, right where you left it.' : view === 'starred' ? 'Keep the important things within reach.' : 'Your library, a little more focused.' %></p>
+        </div>
+        <div class="heading-actions">
+          <button class="button button-secondary" type="button" data-open="folder-dialog">
+            <%- include('partials/icon', { name: 'plus' }) %> New folder</button
+          ><button class="button button-primary" type="button" data-open="upload-dialog">
+            <%- include('partials/icon', { name: 'upload' }) %> Upload file
+          </button>
+        </div>
+      </div>
+      <% if (currentFolder) { %>
+      <div class="folder-toolbar">
+        <span class="tag <%= currentFolder.color %>"><%- include('partials/icon', { name: 'folder' }) %> Folder</span>
+        <div>
+          <button class="text-button" type="button" data-open="edit-folder-dialog">
+            <%- include('partials/icon', { name: 'edit' }) %> Edit</button
+          ><button class="text-button" type="button" data-open="share-dialog">
+            <%- include('partials/icon', { name: 'link' }) %> Share folder
+          </button>
+          <form
+            action="/folders/<%= currentFolder.id %>/delete"
+            method="post"
+            data-confirm="Delete this folder and all files and subfolders inside it? This cannot be undone."
+          >
+            <input type="hidden" name="_csrf" value="<%= csrf %>" /><button
+              class="text-button danger"
+            >
+              <%- include('partials/icon', { name: 'trash' }) %> Delete
+            </button>
+          </form>
+        </div>
+      </div>
+      <% } %> <% if (view === 'all' && !q && !currentFolder) { %>
+      <section class="welcome-card">
+        <div>
+          <span class="eyebrow">LESS CLUTTER. MORE CLARITY.</span>
+          <h2>A little space for<br />your next big thing.</h2>
+          <p>
+            Ideas, works in progress, and everything in between. <br />Keep them all together, make
+            room for what’s next.
+          </p>
+          <button class="text-button" type="button" data-open="upload-dialog">
+            Add to your space <%- include('partials/icon', { name: 'arrow-right' }) %>
+          </button>
+        </div>
+        <div class="welcome-art" aria-hidden="true">
+          <div class="art-circle"></div>
+          <div class="art-folder back"></div>
+          <div class="art-paper">
+            <span></span><span></span><span></span>
+            <div class="art-sun"></div>
+          </div>
+          <div class="art-folder front"><span>GOOD THINGS INSIDE</span></div>
+          <div class="spark one">✳</div>
+          <div class="spark two">+</div>
+          <div class="art-caption">A place to keep<br />what matters.</div>
+        </div>
+      </section>
+      <% } %> <% if (folders.length) { %>
+      <section class="folder-section">
+        <div class="section-heading">
+          <h2><%= q ? 'Matching folders' : 'Your folders' %><span class="pill"><%= folders.length %></span></h2>
+          <span class="muted small">A place for everything</span>
+        </div>
+        <div class="folder-grid">
+          <% for (const folder of folders) { %><a
+            class="folder-card <%= folder.color %>"
+            href="/app?folder=<%= folder.id %>"
+            ><div class="folder-card-top">
+              <%- include('partials/icon', { name: 'folder', extra: 'folder-large' }) %><% if (folder.shares.length) { %><span
+                class="shared-indicator"
+                title="Shared folder"
+                ><%- include('partials/icon', { name: 'link' }) %></span
+              ><% } else { %><%- include('partials/icon', { name: 'arrow-up-right' }) %><% } %>
+            </div>
+            <h3><%= folder.name %></h3>
+            <p>
+              <%= folder._count.files %> <%= folder._count.files === 1 ? 'file' : 'files' %><% if (folder._count.children) { %> · <%= folder._count.children %>
+              <%= folder._count.children === 1 ? 'folder' : 'folders' %><% } %>
+            </p></a
+          ><% } %>
+        </div>
+      </section>
+      <% } %>
+      <section class="files-section">
+        <div class="section-heading files-heading">
+          <h2><%= view === 'recent' ? 'Recently added' : 'Files' %><span class="pill"><%= count %></span></h2>
+          <form class="sort-form" action="/app" method="get">
+            <input type="hidden" name="view" value="<%= view %>" /><input
+              type="hidden"
+              name="q"
+              value="<%= q %>"
+            /><% if (folderId) { %><input
+              type="hidden"
+              name="folder"
+              value="<%= folderId %>"
+            /><% } %><label for="sort">Sort by</label
+            ><select name="sort" id="sort" data-auto-submit>
+              <option value="newest" <%= sort === 'newest' ? 'selected' : '' %>>Newest first</option>
+              <option value="oldest" <%= sort === 'oldest' ? 'selected' : '' %>>Oldest first</option>
+              <option value="name" <%= sort === 'name' ? 'selected' : '' %>>Name A–Z</option>
+              <option value="size" <%= sort === 'size' ? 'selected' : '' %>>Largest first</option></select
+            ><noscript><button>Sort</button></noscript>
+          </form>
+        </div>
+        <% if (files.length) { %>
+        <div class="file-table-wrap">
+          <table class="file-table">
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col" class="type-col">Type</th>
+                <th scope="col">Size</th>
+                <th scope="col" class="date-col">Added</th>
+                <th scope="col"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% for (const file of files) { const kind = fileKind(file.mimeType); %>
+              <tr>
+                <td>
+                  <a class="file-name" href="/files/<%= file.id %>"
+                    ><span class="file-icon <%= kind %>"
+                      ><%- include('partials/icon', { name: kind === 'image' ? 'image' : kind === 'sheet' ? 'sheet' : 'file' }) %><% if (kind === 'pdf') { %><small>PDF</small><% } %></span
+                    ><span
+                      ><strong><%= file.name %></strong
+                      ><small><%= file.folder?.name || 'My files' %></small></span
+                    ></a
+                  >
+                </td>
+                <td class="type-col"><span class="type-tag"><%= file.name.split('.').pop().toUpperCase() %></span></td>
+                <td class="size-cell"><%= formatSize(file.size) %></td>
+                <td class="date-col muted"><%= formatDate(file.createdAt) %></td>
+                <td>
+                  <div class="row-actions">
+                    <form action="/files/<%= file.id %>/star" method="post" data-star>
+                      <input type="hidden" name="_csrf" value="<%= csrf %>" /><button
+                        class="icon-button star-button <%= file.starred ? 'is-starred' : '' %>"
+                        aria-label="<%= file.starred ? 'Unstar' : 'Star' %> <%= file.name %>"
+                        aria-pressed="<%= file.starred %>"
+                      >
+                        <%- include('partials/icon', { name: 'star' }) %>
+                      </button>
+                    </form>
+                    <a
+                      class="icon-button"
+                      href="/files/<%= file.id %>/download"
+                      aria-label="Download <%= file.name %>"
+                      ><%- include('partials/icon', { name: 'download' }) %></a
+                    >
+                  </div>
+                </td>
+              </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+        <% } else { %>
+        <div class="empty-state">
+          <div class="empty-icon"><%- include('partials/icon', { name: q ? 'search' : view === 'starred' ? 'star' : 'file' }) %></div>
+          <h3><%= q ? 'No matches just yet' : view === 'starred' ? 'Your favorites belong here' : 'Good things start with a blank page' %></h3>
+          <p><%= q ? 'Try a different name or a shorter search.' : view === 'starred' ? 'Tap the star beside a file to keep it close.' : 'Upload your first file and make this space your own.' %></p>
+          <% if (!q && view !== 'starred') { %><button
+            class="button button-primary"
+            data-open="upload-dialog"
+            type="button"
+          >
+            <%- include('partials/icon', { name: 'plus' }) %> Add your first file</button
+          ><% } %>
+        </div>
+        <% } %> <% if (pages > 1) { %>
+        <nav class="pagination" aria-label="File pages">
+          <% for (let i = 1; i <= pages; i++) { %><a href="/app?<%= new URLSearchParams({ view, q, sort, ...(folderId ? { folder: folderId } : {}), page: String(i) }).toString() %>" <%- page === i ? 'aria-current="page"' : '' %>
+            ><%= i %></a
+          ><% } %>
+        </nav>
+        <% } %>
+      </section>
+      <footer class="workspace-footer">
+        <span><%- include('partials/icon', { name: 'lock' }) %> Private by default. Shared by choice.</span
+        ><span>A little more organized.</span>
+      </footer>
+    </main>
+  </div>
+</div>
+<%- include('partials/dialogs') %>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<%- include('partials/foot') %>

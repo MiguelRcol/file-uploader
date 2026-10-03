@@ -1,0 +1,83 @@
+<%- include('partials/head') %>
+<div class="public-share">
+  <header class="landing-nav">
+    <%- include('partials/brand') %><a href="/signup" class="button button-secondary"
+      >Get your own space <%- include('partials/icon', { name: 'arrow-up-right' }) %></a
+    >
+  </header>
+  <main id="main" class="share-main">
+    <span class="eyebrow">A LITTLE SOMETHING, SHARED WITH YOU</span>
+    <div class="page-heading">
+      <div>
+        <h1><%= currentFolder.name %><span class="heading-dot">.</span></h1>
+        <p>Shared by <%= share.folder.owner.name %> · Available until <%= formatDate(share.expiresAt) %> (UTC)</p>
+      </div>
+      <span class="tag sage"><%- include('partials/icon', { name: 'lock' }) %> View & download</span>
+    </div>
+    <nav class="breadcrumbs" aria-label="Folder path">
+      <% breadcrumbs.forEach((item, index) => { %><% if (index) { %><span>/</span><% } %><a
+        href="/share/<%= share.token %>?folder=<%= item.id %>"
+        ><%= item.name %></a
+      ><% }); %>
+    </nav>
+    <% if (folders.length) { %>
+    <div class="folder-grid">
+      <% for (const folder of folders) { %><a
+        class="folder-card <%= folder.color %>"
+        href="/share/<%= share.token %>?folder=<%= folder.id %>"
+        ><div class="folder-card-top"><%- include('partials/icon', { name: 'folder', extra: 'folder-large' }) %><%- include('partials/icon', { name: 'arrow-up-right' }) %></div>
+        <h2><%= folder.name %></h2>
+        <p>Open folder</p></a
+      ><% } %>
+    </div>
+    <% } %>
+    <div class="section-heading">
+      <h2>Files <span class="pill"><%= files.length %></span></h2>
+    </div>
+    <% if (files.length) { %>
+    <div class="file-table-wrap">
+      <table class="file-table">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Size</th>
+            <th scope="col" class="date-col">Added</th>
+            <th scope="col"><span class="sr-only">Download</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const file of files) { %>
+          <tr>
+            <td>
+              <div class="file-name">
+                <span class="file-icon <%= fileKind(file.mimeType) %>"><%- include('partials/icon', { name: fileKind(file.mimeType) === 'image' ? 'image' : 'file' }) %></span
+                ><strong><%= file.name %></strong>
+              </div>
+            </td>
+            <td class="size-cell"><%= formatSize(file.size) %></td>
+            <td class="date-col muted"><%= formatDate(file.createdAt) %></td>
+            <td>
+              <a
+                class="button button-secondary small"
+                href="/share/<%= share.token %>/files/<%= file.id %>/download"
+                ><%- include('partials/icon', { name: 'download' }) %> Download</a
+              >
+            </td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+    <% } else { %>
+    <div class="empty-state">
+      <div class="empty-icon"><%- include('partials/icon', { name: 'folder' }) %></div>
+      <h3>Nothing here just yet</h3>
+      <p>The owner hasn’t added any files to this folder.</p>
+    </div>
+    <% } %>
+    <footer class="workspace-footer">
+      <span><%- include('partials/icon', { name: 'link' }) %> A view-only link, shared through Stow.</span>
+    </footer>
+  </main>
+</div>
+<%- include('partials/foot') %>

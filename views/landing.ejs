@@ -1,0 +1,86 @@
+<%- include('partials/head') %>
+<div class="landing">
+  <header class="landing-nav">
+    <%- include('partials/brand') %>
+    <nav>
+      <a class="text-button" href="/login">Sign in</a
+      ><a class="button button-primary" href="/signup">Get started <%- include('partials/icon', { name: 'arrow-up-right' }) %></a>
+    </nav>
+  </header>
+  <main id="main">
+    <section class="landing-hero">
+      <div class="landing-copy">
+        <span class="eyebrow"><span class="tiny-dot"></span> A CALMER WAY TO KEEP THINGS</span>
+        <h1>A little space<br />for <em>everything.</em></h1>
+        <p>
+          For the ideas you’re collecting, the work you’re making, and the files you keep coming
+          back to. Give them a home.
+        </p>
+        <div class="landing-actions">
+          <a class="button button-primary button-large" href="/signup"
+            >Make yourself at home <%- include('partials/icon', { name: 'arrow-right' }) %></a
+          ><span>No clutter. Just your files.</span>
+        </div>
+      </div>
+      <div class="landing-visual" aria-hidden="true">
+        <div class="visual-orbit"></div>
+        <div class="visual-note">
+          <span>ROOM FOR<br />GOOD THINGS</span><span>✳</span>
+        </div>
+        <div class="visual-window">
+          <div class="visual-window-header">
+            <span></span><span></span><span></span><strong>My little corner</strong>
+          </div>
+          <div class="visual-window-body">
+            <div class="visual-greeting">Everything in its place<span>.</span></div>
+            <div class="visual-folders">
+              <div class="sage">
+                <%- include('partials/icon', { name: 'folder' }) %><strong>Works in progress</strong><small>8 files</small>
+              </div>
+              <div class="lavender">
+                <%- include('partials/icon', { name: 'folder' }) %><strong>Fresh ideas</strong><small>12 files</small>
+              </div>
+            </div>
+            <div class="visual-file">
+              <span class="file-icon pdf"><%- include('partials/icon', { name: 'file' }) %></span>
+              <div>
+                <strong>A good place to start.pdf</strong><small>Just added · 2.4 MB</small>
+              </div>
+              <%- include('partials/icon', { name: 'star' }) %>
+            </div>
+            <div class="visual-file">
+              <span class="file-icon image"><%- include('partials/icon', { name: 'image' }) %></span>
+              <div>
+                <strong>Something worth keeping.png</strong><small>Yesterday · 1.8 MB</small>
+              </div>
+              <%- include('partials/icon', { name: 'check' }) %>
+            </div>
+          </div>
+        </div>
+        <div class="visual-sticker"><%- include('partials/icon', { name: 'lock' }) %> All yours.</div>
+      </div>
+    </section>
+    <section class="landing-features">
+      <article>
+        <span class="feature-number">01 / KEEP</span>
+        <h2>Everything, together.</h2>
+        <p>Upload documents and images to a private library that feels like your own.</p>
+      </article>
+      <article>
+        <span class="feature-number">02 / ORGANIZE</span>
+        <h2>A place for every idea.</h2>
+        <p>Colorful folders, nested collections, and stars for the files you reach for most.</p>
+      </article>
+      <article>
+        <span class="feature-number">03 / SHARE</span>
+        <h2>Open the door, briefly.</h2>
+        <p>Share a folder with one link. Set an expiry date, or close it whenever you like.</p>
+      </article>
+    </section>
+  </main>
+  <footer class="landing-footer">
+    <span>stow. <span class="muted">A little more organized.</span></span
+    ><span>Made for the things you make.</span>
+  </footer>
+</div>
+<%- include('partials/foot') %>

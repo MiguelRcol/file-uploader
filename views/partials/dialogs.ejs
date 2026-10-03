@@ -1,0 +1,146 @@
+<dialog id="upload-dialog" class="modal">
+  <div class="modal-heading">
+    <div>
+      <span class="eyebrow">MAKE YOURSELF AT HOME</span>
+      <h2>Upload a file</h2>
+    </div>
+    <button type="button" class="icon-button" data-close aria-label="Close upload dialog">
+      <%- include('icon', { name: 'close' }) %>
+    </button>
+  </div>
+  <form action="/files/upload" method="post" enctype="multipart/form-data" id="upload-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>" /><input
+      type="hidden"
+      name="folderId"
+      value="<%= typeof folderId !== 'undefined' && folderId ? folderId : '' %>"
+    />
+    <div class="drop-zone" id="drop-zone">
+      <span class="upload-cloud"><%- include('icon', { name: 'upload' }) %></span><strong>Drop something good here</strong
+      ><span>or choose a file from your device</span
+      ><input
+        id="file-input"
+        name="file"
+        type="file"
+        accept=".pdf,.png,.jpg,.jpeg,.webp,.txt,.md,.csv"
+        required
+        aria-label="Choose file to upload"
+      /><label class="button button-secondary" for="file-input">Browse files</label>
+    </div>
+    <p class="upload-rules">
+      PDF, PNG, JPG, WebP, TXT, Markdown & CSV · Up to <%= config.MAX_FILE_SIZE_MB %> MB per file
+    </p>
+    <p class="upload-selected" id="selected-file" aria-live="polite"></p>
+    <div class="upload-status" id="upload-status" role="status" aria-live="polite"></div>
+    <div class="modal-actions">
+      <button class="button button-secondary" data-close type="button">Cancel</button
+      ><button class="button button-primary" type="submit" id="upload-submit">
+        <%- include('icon', { name: 'upload' }) %> Upload file
+      </button>
+    </div>
+  </form>
+</dialog>
+<dialog id="folder-dialog" class="modal">
+  <div class="modal-heading">
+    <div>
+      <span class="eyebrow">A PLACE FOR EVERYTHING</span>
+      <h2>New folder</h2>
+    </div>
+    <button type="button" class="icon-button" data-close aria-label="Close folder dialog">
+      <%- include('icon', { name: 'close' }) %>
+    </button>
+  </div>
+  <form action="/folders" method="post">
+    <input type="hidden" name="_csrf" value="<%= csrf %>" /><input
+      type="hidden"
+      name="parentId"
+      value="<%= typeof folderId !== 'undefined' && folderId ? folderId : '' %>"
+    /><label class="field-label" for="folder-name">Folder name</label
+    ><input
+      class="field-input"
+      id="folder-name"
+      name="name"
+      placeholder="e.g. Weekend projects"
+      maxlength="120"
+      required
+    />
+    <fieldset class="color-field">
+      <legend>Give it a color</legend>
+      <% for (const color of ['sage', 'lavender', 'peach', 'blue', 'yellow']) { %><label class="color-option <%= color %>"
+        ><input type="radio" name="color" value="<%= color %>" <%= color === 'sage' ? 'checked' : '' %> /><span
+          ><%- include('icon', { name: 'folder' }) %></span
+        ><span class="sr-only"><%= color %></span></label
+      ><% } %>
+    </fieldset>
+    <div class="modal-actions">
+      <button class="button button-secondary" data-close type="button">Cancel</button
+      ><button class="button button-primary">Create folder</button>
+    </div>
+  </form>
+</dialog>
+<% if (typeof currentFolder !== 'undefined' && currentFolder) { %>
+<dialog id="edit-folder-dialog" class="modal">
+  <div class="modal-heading">
+    <h2>Edit folder</h2>
+    <button class="icon-button" type="button" data-close aria-label="Close edit dialog">
+      <%- include('icon', { name: 'close' }) %>
+    </button>
+  </div>
+  <form action="/folders/<%= currentFolder.id %>/rename" method="post">
+    <input type="hidden" name="_csrf" value="<%= csrf %>" /><label
+      class="field-label"
+      for="edit-folder-name"
+      >Folder name</label
+    ><input
+      class="field-input"
+      id="edit-folder-name"
+      name="name"
+      value="<%= currentFolder.name %>"
+      maxlength="120"
+      required
+    />
+    <fieldset class="color-field">
+      <legend>Color</legend>
+      <% for (const color of ['sage', 'lavender', 'peach', 'blue', 'yellow']) { %><label class="color-option <%= color %>"
+        ><input type="radio" name="color" value="<%= color %>" <%= color === currentFolder.color ? 'checked' : '' %> /><span
+          ><%- include('icon', { name: 'folder' }) %></span
+        ><span class="sr-only"><%= color %></span></label
+      ><% } %>
+    </fieldset>
+    <div class="modal-actions"><button class="button button-primary">Save changes</button></div>
+  </form>
+</dialog>
+<dialog id="share-dialog" class="modal">
+  <div class="modal-heading">
+    <div>
+      <span class="eyebrow">SHARE ON YOUR TERMS</span>
+      <h2>Let someone in</h2>
+    </div>
+    <button type="button" class="icon-button" data-close aria-label="Close share dialog">
+      <%- include('icon', { name: 'close' }) %>
+    </button>
+  </div>
+  <p class="muted">
+    Create a link to <strong><%= currentFolder.name %></strong>. Anyone with the link can browse and
+    download everything inside, including subfolders.
+  </p>
+  <form action="/folders/<%= currentFolder.id %>/share" method="post">
+    <input type="hidden" name="_csrf" value="<%= csrf %>" /><label
+      class="field-label"
+      for="share-days"
+      >Link expires after</label
+    ><select class="field-input" name="days" id="share-days">
+      <option value="1">1 day</option>
+      <option value="7" selected>7 days</option>
+      <option value="10">10 days</option>
+      <option value="30">30 days</option>
+    </select>
+    <p class="form-hint">
+      You can revoke it anytime from Shared folders. New files added to this folder will also be
+      shared.
+    </p>
+    <div class="modal-actions">
+      <button class="button button-primary"><%- include('icon', { name: 'link' }) %> Create share link</button>
+    </div>
+  </form>
+</dialog>
+<% } %>

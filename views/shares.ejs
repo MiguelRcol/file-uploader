@@ -1,0 +1,82 @@
+<%- include('partials/head') %>
+<div class="app-shell">
+  <%- include('partials/sidebar') %>
+  <div class="app-body">
+    <%- include('partials/topbar') %>
+    <main id="main" class="workspace">
+      <%- include('partials/flash') %>
+      <div class="breadcrumbs">
+        <a href="/app">Workspace</a><span>/</span><span>Shared folders</span>
+      </div>
+      <div class="page-heading">
+        <div>
+          <h1>Shared folders<span class="heading-dot">.</span></h1>
+          <p>A small invitation. Always on your terms.</p>
+        </div>
+        <a href="/app" class="button button-secondary"><%- include('partials/icon', { name: 'folder' }) %> Go to your folders</a>
+      </div>
+      <div class="share-explainer">
+        <%- include('partials/icon', { name: 'info' }) %>
+        <p>
+          Anyone with an active link can view and download the folder and its contents. Expired or
+          revoked links stop working immediately.
+        </p>
+      </div>
+      <% if (shares.length) { %>
+      <div class="share-list">
+        <% for (const share of shares) { const expired = share.expiresAt <= new Date(); const url = `${config.APP_URL.replace(/\/$/, '')}/share/${share.token}`; %>
+        <article class="share-card">
+          <div class="share-card-title">
+            <span class="folder-badge <%= share.folder.color %>"><%- include('partials/icon', { name: 'folder' }) %></span>
+            <div>
+              <h2><a href="/app?folder=<%= share.folder.id %>"><%= share.folder.name %></a></h2>
+              <p><%= expired ? 'Expired' : 'Expires' %> <%= formatDate(share.expiresAt) %> (UTC)</p>
+            </div>
+            <span class="status-pill <%= expired ? 'expired' : 'live' %>"><%= expired ? 'Expired' : 'Active' %></span>
+          </div>
+          <div class="share-link-row">
+            <input
+              class="field-input"
+              aria-label="Share link for <%= share.folder.name %>"
+              value="<%= url %>"
+              readonly
+            /><button
+              class="button button-secondary"
+              type="button"
+              data-copy="<%= url %>"
+            >
+              <%- include('partials/icon', { name: 'copy' }) %> Copy link</button
+            ><a
+              class="icon-button"
+              href="/share/<%= share.token %>"
+              aria-label="Open shared folder"
+              ><%- include('partials/icon', { name: 'arrow-up-right' }) %></a
+            >
+          </div>
+          <form
+            action="/shares/<%= share.id %>/revoke"
+            method="post"
+            data-confirm="Revoke this link? Anyone using it will lose access."
+          >
+            <input type="hidden" name="_csrf" value="<%= csrf %>" /><button
+              class="text-button danger small"
+            >
+              <%- include('partials/icon', { name: 'close' }) %> <%= expired ? 'Remove link' : 'Revoke access' %>
+            </button>
+          </form>
+        </article>
+        <% } %>
+      </div>
+      <% } else { %>
+      <div class="empty-state">
+        <div class="empty-icon"><%- include('partials/icon', { name: 'link' }) %></div>
+        <h3>Good things are worth sharing</h3>
+        <p>Open a folder and choose “Share folder” to create your first link.</p>
+        <a class="button button-primary" href="/app">Browse your folders</a>
+      </div>
+      <% } %>
+    </main>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<%- include('partials/foot') %>

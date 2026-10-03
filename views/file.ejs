@@ -1,0 +1,132 @@
+<%- include('partials/head') %>
+<div class="app-shell">
+  <%- include('partials/sidebar') %>
+  <div class="app-body">
+    <%- include('partials/topbar') %>
+    <main id="main" class="workspace">
+      <%- include('partials/flash') %>
+      <div class="breadcrumbs">
+        <a href="/app">My files</a><span>/</span><% if (file.folder) { %><a
+          href="/app?folder=<%= file.folder.id %>"
+          ><%= file.folder.name %></a
+        ><span>/</span><% } %><span>File details</span>
+      </div>
+      <div class="page-heading">
+        <div>
+          <h1 class="file-title"><%= file.name %></h1>
+          <p>A closer look at what you’re keeping.</p>
+        </div>
+        <a class="button button-primary" href="/files/<%= file.id %>/download"
+          ><%- include('partials/icon', { name: 'download' }) %> Download</a
+        >
+      </div>
+      <div class="file-detail-grid">
+        <section class="preview-panel">
+          <% if (file.mimeType.startsWith('image/')) { %><img
+            src="/files/<%= file.id %>/preview"
+            alt="Preview of <%= file.name %>"
+          /><% } else { %>
+          <div class="document-preview">
+            <div class="document-sheet <%= fileKind(file.mimeType) %>">
+              <%- include('partials/icon', { name: fileKind(file.mimeType) === 'sheet' ? 'sheet' : 'file' }) %><span><%= file.name.split('.').pop().toUpperCase() %></span>
+            </div>
+            <h2><%= file.name %></h2>
+            <p>Download this file to view its contents.</p>
+          </div>
+          <% } %>
+        </section>
+        <aside class="detail-card">
+          <div class="section-heading">
+            <h2>File information</h2>
+            <form action="/files/<%= file.id %>/star" method="post" data-star>
+              <input type="hidden" name="_csrf" value="<%= csrf %>" /><button
+                class="icon-button star-button <%= file.starred ? 'is-starred' : '' %>"
+                aria-label="Star file"
+                aria-pressed="<%= file.starred %>"
+              >
+                <%- include('partials/icon', { name: 'star' }) %>
+              </button>
+            </form>
+          </div>
+          <dl class="file-metadata">
+            <dt>Name</dt>
+            <dd><%= file.name %></dd>
+            <dt>File size</dt>
+            <dd><%= formatSize(file.size) %></dd>
+            <dt>Type</dt>
+            <dd><%= file.mimeType %></dd>
+            <dt>Uploaded</dt>
+            <dd><%= formatDate(file.createdAt) %> <span class="small muted">(UTC)</span></dd>
+            <dt>Location</dt>
+            <dd><a href="<%= file.folderId ? `/app?folder=${file.folderId}` : '/app' %>"><%- include('partials/icon', { name: 'folder' }) %><%= file.folder?.name || 'My files' %></a></dd>
+          </dl>
+          <div class="detail-actions">
+            <button class="button button-secondary" type="button" data-open="rename-dialog">
+              <%- include('partials/icon', { name: 'edit' }) %> Rename</button
+            ><button class="button button-secondary" type="button" data-open="move-dialog">
+              <%- include('partials/icon', { name: 'folder' }) %> Move to folder
+            </button>
+            <form
+              action="/files/<%= file.id %>/delete"
+              method="post"
+              data-confirm="Delete this file? This cannot be undone."
+            >
+              <input type="hidden" name="_csrf" value="<%= csrf %>" /><button
+                class="text-button danger"
+              >
+                <%- include('partials/icon', { name: 'trash' }) %> Delete file
+              </button>
+            </form>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+</div>
+<dialog id="rename-dialog" class="modal">
+  <div class="modal-heading">
+    <h2>Rename file</h2>
+    <button class="icon-button" type="button" data-close aria-label="Close rename dialog">
+      <%- include('partials/icon', { name: 'close' }) %>
+    </button>
+  </div>
+  <form action="/files/<%= file.id %>/rename" method="post">
+    <input type="hidden" name="_csrf" value="<%= csrf %>" /><label
+      class="field-label"
+      for="file-name"
+      >File name</label
+    ><input
+      class="field-input"
+      id="file-name"
+      name="name"
+      value="<%= file.name %>"
+      maxlength="120"
+      required
+    />
+    <p class="form-hint">Keep the file extension at the end of the name.</p>
+    <div class="modal-actions"><button class="button button-primary">Save name</button></div>
+  </form>
+</dialog>
+<dialog id="move-dialog" class="modal">
+  <div class="modal-heading">
+    <h2>Move file</h2>
+    <button class="icon-button" type="button" data-close aria-label="Close move dialog">
+      <%- include('partials/icon', { name: 'close' }) %>
+    </button>
+  </div>
+  <form action="/files/<%= file.id %>/move" method="post">
+    <input type="hidden" name="_csrf" value="<%= csrf %>" /><label
+      class="field-label"
+      for="move-folder"
+      >Destination</label
+    ><select class="field-input" id="move-folder" name="folderId">
+      <option value="">My files</option>
+      <% for (const folder of allFolders) { %>
+      <option value="<%= folder.id %>" <%= file.folderId === folder.id ? 'selected' : '' %>><%= folder.path %></option>
+      <% } %>
+    </select>
+    <div class="modal-actions"><button class="button button-primary">Move file</button></div>
+  </form>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<%- include('partials/foot') %>

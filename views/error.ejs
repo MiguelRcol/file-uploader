@@ -1,0 +1,13 @@
+<%- include('partials/head') %>
+<div class="error-page">
+  <%- include('partials/brand') %>
+  <main id="main">
+    <span class="error-code"><%= status %></span>
+    <h1><%= title %><span class="heading-dot">.</span></h1>
+    <p><%= message %></p>
+    <a class="button button-primary" href="<%= user ? '/app' : '/' %>"
+      ><%- include('partials/icon', { name: 'arrow-left' }) %> Back to your space</a
+    >
+  </main>
+</div>
+<%- include('partials/foot') %>

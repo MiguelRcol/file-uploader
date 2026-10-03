@@ -1,0 +1,24 @@
+<header class="topbar">
+  <button
+    class="icon-button mobile-only"
+    data-sidebar-open
+    type="button"
+    aria-label="Open navigation"
+    aria-controls="sidebar"
+    aria-expanded="false"
+  >
+    <%- include('icon', { name: 'menu' }) %>
+  </button>
+  <form action="/app" method="get" class="search-form" role="search">
+    <%- include('icon', { name: 'search' }) %><label class="sr-only" for="search">Search files and folders</label
+    ><input
+      id="search"
+      name="q"
+      type="search"
+      value="<%= q %>"
+      placeholder="Search your files and folders"
+      maxlength="120"
+    /><kbd>/</kbd>
+  </form>
+  <span class="private-label"><%- include('icon', { name: 'lock' }) %> Your own little corner</span>
+</header>

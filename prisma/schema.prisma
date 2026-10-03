@@ -1,0 +1,80 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  usedBytes    Int      @default(0)
+  createdAt    DateTime @default(now())
+  folders      Folder[]
+  files        File[]
+}
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String
+  expiresAt DateTime
+  @@index([expiresAt])
+}
+
+model Folder {
+  id        String   @id @default(cuid())
+  name      String
+  color     String   @default("sage")
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    Folder?  @relation("FolderTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Folder[] @relation("FolderTree")
+  files     File[]
+  shares    Share[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([ownerId, parentId])
+}
+
+model File {
+  id          String   @id @default(cuid())
+  name        String
+  mimeType    String
+  size        Int
+  storageKey  String   @unique
+  storageUrl  String?
+  provider    String
+  starred     Boolean  @default(false)
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  folderId    String?
+  folder      Folder?  @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@index([ownerId, folderId])
+  @@index([ownerId, starred])
+}
+
+model Share {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  folderId  String
+  folder    Folder   @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  @@index([folderId])
+}
+
+model StorageDeletion {
+  id         String   @id @default(cuid())
+  storageKey String
+  provider   String
+  createdAt  DateTime @default(now())
+}

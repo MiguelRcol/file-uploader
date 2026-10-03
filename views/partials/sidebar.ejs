@@ -1,0 +1,66 @@
+<aside class="sidebar" id="sidebar" aria-label="Main navigation">
+  <div class="sidebar-brand">
+    <%- include('brand') %><button
+      class="icon-button mobile-only"
+      type="button"
+      data-sidebar-close
+      aria-label="Close navigation"
+    >
+      <%- include('icon', { name: 'close' }) %>
+    </button>
+  </div>
+  <div class="space-label">YOUR WORKSPACE</div>
+  <nav class="nav-links">
+    <a href="/app" class="<%= view === 'all' ? 'active' : '' %>"
+      ><%- include('icon', { name: 'grid' }) %> My files <span class="nav-count"><%= stats.totalFiles %></span></a
+    >
+    <a href="/app?view=recent" class="<%= view === 'recent' ? 'active' : '' %>"><%- include('icon', { name: 'clock' }) %> Recent</a>
+    <a href="/app?view=starred" class="<%= view === 'starred' ? 'active' : '' %>"><%- include('icon', { name: 'star' }) %> Starred</a>
+    <a href="/shares" class="<%= view === 'shared' ? 'active' : '' %>"
+      ><%- include('icon', { name: 'link' }) %> Shared folders <% if (stats.activeShares) { %><span class="nav-count"
+        ><%= stats.activeShares %></span
+      ><% } %></a
+    >
+  </nav>
+  <div class="sidebar-divider"></div>
+  <div class="space-label">FILE TYPES</div>
+  <nav class="nav-links secondary-nav">
+    <a href="/app?view=documents" class="<%= view === 'documents' ? 'active' : '' %>"><%- include('icon', { name: 'file' }) %> Documents</a>
+    <a href="/app?view=images" class="<%= view === 'images' ? 'active' : '' %>"><%- include('icon', { name: 'image' }) %> Images</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="storage-card">
+      <div class="storage-heading">
+        <span><%- include('icon', { name: 'database' }) %> Your storage</span><span><%= Math.round(user.usedBytes / config.quotaBytes * 100) %>%</span>
+      </div>
+      <meter
+        min="0"
+        max="<%= config.quotaBytes %>"
+        value="<%= user.usedBytes %>"
+        aria-label="Storage used"
+      ></meter>
+      <p><strong><%= formatSize(user.usedBytes) %></strong> of <%= formatSize(config.quotaBytes) %> used</p>
+    </div>
+    <div class="profile">
+      <div class="avatar"><%= user.name.slice(0, 1).toUpperCase() %></div>
+      <div class="profile-info">
+        <strong><%= user.name %></strong><span>Personal workspace</span>
+      </div>
+      <form action="/logout" method="post">
+        <input type="hidden" name="_csrf" value="<%= csrf %>" /><button
+          class="icon-button"
+          title="Sign out"
+          aria-label="Sign out"
+        >
+          <%- include('icon', { name: 'logout' }) %>
+        </button>
+      </form>
+    </div>
+  </div>
+</aside>
+<button
+  type="button"
+  class="sidebar-overlay"
+  data-sidebar-close
+  aria-label="Close navigation"
+></button>

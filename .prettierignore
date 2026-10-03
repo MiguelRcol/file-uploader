@@ -1,0 +1,10 @@
+node_modules/
+dist/
+src/generated/
+package-lock.json
+data/
+uploads/
+test-results/
+playwright-report/
+prisma/migrations/
+views/

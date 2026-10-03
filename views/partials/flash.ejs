@@ -1,0 +1,8 @@
+<% if (flash) { %>
+<div class="notice <%= flash.type %>" role="status">
+  <%- include('icon', { name: flash.type === 'success' ? 'check' : 'info' }) %><span><%= flash.message %></span
+  ><button class="icon-button" data-dismiss type="button" aria-label="Dismiss message">
+    <%- include('icon', { name: 'close' }) %>
+  </button>
+</div>
+<% } %>
